@@ -1,0 +1,7 @@
+---
+connect:
+    username: elastic
+    password: elastic
+    host: es.99gfd.com
+    port: 443
+    scheme: https
