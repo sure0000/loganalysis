@@ -2,6 +2,6 @@
 
 tidbServer:
     from: bigdata@treefintech.com
-    to: [xuyouchang@treefintech.com,wujianyang@treefintech.com]
+    to: [sjyf@treefinance.com.cn]
     host: smtp.exmail.qq.com
     password: Dashu0701
