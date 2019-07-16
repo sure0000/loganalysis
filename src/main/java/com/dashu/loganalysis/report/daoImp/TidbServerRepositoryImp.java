@@ -49,9 +49,9 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
         searchSourceBuilder.query(boolQueryBuilder);
 
         // termsAggregationBuilder
-        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("by_location")
-                .field("location");
-        termsAggregationBuilder.subAggregation(AggregationBuilders.count("count_location").field("location"));
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("by_action")
+                .field("action");
+        termsAggregationBuilder.subAggregation(AggregationBuilders.count("count_action").field("action"));
         termsAggregationBuilder.order(BucketOrder.count(false));
         searchSourceBuilder.aggregation(termsAggregationBuilder);
 
@@ -59,12 +59,12 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
         try {
             SearchResponse response = client.search(request);
             Aggregations aggregations = response.getAggregations();
-            Terms byActionAggregation = aggregations.get("by_location");
+            Terms byActionAggregation = aggregations.get("by_action");
             List<Terms.Bucket> buckets = (List<Terms.Bucket>)byActionAggregation.getBuckets();
             List<Map<String,Object>> warnCountList = new ArrayList<>();
             for (Terms.Bucket bucket : buckets) {
                 String key = bucket.getKeyAsString();
-                ValueCount value = bucket.getAggregations().get("count_location");
+                ValueCount value = bucket.getAggregations().get("count_action");
                 Map<String, Object> warnMap = new HashMap<>();
                 warnMap.put("key", key);
                 warnMap.put("value", value.getValue());
@@ -86,14 +86,14 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
 
     private SearchHits filterByLocationAndLoglevel(RestHighLevelClient client,
                                                      String index,
-                                                     String location,
+                                                     String action,
                                                      String loglevel) throws IOException {
         SearchRequest request = new SearchRequest(index);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
         boolQueryBuilder.filter(QueryBuilders.matchQuery("loglevel", loglevel))
-                .filter(QueryBuilders.matchQuery("location", location));
+                .filter(QueryBuilders.matchQuery("action", action));
         searchSourceBuilder.query(boolQueryBuilder);
         request.source(searchSourceBuilder);
 
