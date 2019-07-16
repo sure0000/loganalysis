@@ -20,15 +20,15 @@ public class EmailServiceTest extends LoganalysisApplicationTests {
     private EmailService emailService;
     @Test
     public void sendEmail() throws AddressException {
-        Address address = new InternetAddress("xuyouchang@treefintech.com");
-        Address address1 = new InternetAddress("wujianyang@treefintech.com");
-        Address[] addresses = new Address[]{address, address1};
-        emailService.sendEmail("bigdata@treefintech.com",
-                addresses,
-                "smtp.exmail.qq.com",
-                "Test",
-                "<h1>this is a test</h1>",
-                "HTML",
-                "Dashu0701");
+        // Address address = new InternetAddress("xuyouchang@treefintech.com");
+        // Address address1 = new InternetAddress("wujianyang@treefintech.com");
+        // Address[] addresses = new Address[]{address, address1};
+        // emailService.sendEmail("bigdata@treefintech.com",
+        //         addresses,
+        //         "smtp.exmail.qq.com",
+        //         "Test",
+        //         "<h1>this is a test</h1>",
+        //         "HTML",
+        //         "Dashu0701");
     }
 }

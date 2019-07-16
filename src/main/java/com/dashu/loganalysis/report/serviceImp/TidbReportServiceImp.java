@@ -1,6 +1,5 @@
 package com.dashu.loganalysis.report.serviceImp;
 
-
 import com.dashu.loganalysis.report.dao.TidbServerRepository;
 import com.dashu.loganalysis.report.service.EmailService;
 import com.dashu.loganalysis.report.service.TidbReportService;
@@ -29,44 +28,26 @@ public class TidbReportServiceImp implements TidbReportService {
 
     @Override
     public void tidbServerWeekReport(Map emailConf) {
-        String from = emailConf.get("from").toString();
-        List<String> toList = (List<String>) emailConf.get("to");
-        List<Address> addressList =  toList.stream().map(item -> {
-            try {
-                return new InternetAddress(item);
-            } catch (AddressException e) {
-               return null;
-            }
-        }).collect(Collectors.toList());
 
-        Address[] to = addressList.toArray(new Address[addressList.size()]);
-        String host = emailConf.get("host").toString();
-        String password = emailConf.get("password").toString();
-
-        List<Map<String, Object>> warnList = tidbServerRepository.countAndFilterByLoglevel("log_tidb_server*","WARN");
-        List<Map<String, Object>> errorList = tidbServerRepository.countAndFilterByLoglevel("log_tidb_server*", "ERROR");
-        String warnContent = constructEmialContent("warn message", warnList);
-        String errorContent = constructEmialContent("error message", errorList);
+        List<Map<String, Object>> warnList = tidbServerRepository.countAndFilterByLoglevel("log_tidb_server*", "WARN");
+        List<Map<String, Object>> errorList = tidbServerRepository.countAndFilterByLoglevel("log_tidb_server*",
+                "ERROR");
+        String warnContent = constructEmailContent("WARN 类型日志统计", warnList);
+        String errorContent = constructEmailContent("ERROR 类型日志统计", errorList);
         String emailContent = warnContent + errorContent;
 
-        emailService.sendEmail( from,
-                                to,
-                                host,
-                                "Tidb Server Week Report",
-                                emailContent,
-                                "HTML",
-                                password);
+        emailService.sendEmail(emailConf, "Tidb Server Week Report", emailContent, "HTML");
     }
 
     // 构造邮件格式
-    public String constructEmialContent(String titleName, List<Map<String, Object>> mapList) {
+    public String constructEmailContent(String titleName, List<Map<String, Object>> mapList) {
         String title = "<h2>TITLENAME</h2>";
-        String table = "<table>ROWS</table>";
+        String table = "<table border='1'>ROWS</table>";
         String row = "<tr><td>LOCATION</td><td>NUM</td></tr>";
-        String rows = "<tr><th>location</th><th>total</th></tr>";
+        String rows = "<tr><th>日志类型</th><th>出现次数</th></tr>";
         for (Map map : mapList) {
-            rows = rows + row.replace("LOCATION",map.get("key").toString())
-                    .replace("NUM", map.get("value").toString());
+            rows = rows
+                    + row.replace("LOCATION", map.get("key").toString()).replace("NUM", map.get("value").toString());
         }
         title = title.replace("TITLENAME", titleName);
         table = table.replace("ROWS", rows);

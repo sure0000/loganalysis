@@ -20,4 +20,9 @@ public class ReporterTest extends LoganalysisApplicationTests {
     public void tidbServerWeekReport() {
         reporter.tidbServerWeekReport();
     }
+
+    @Test
+    public void tidbSlowQueryWeekReport() {
+        reporter.tidbSlowQueryWeekReport();
+    }
 }

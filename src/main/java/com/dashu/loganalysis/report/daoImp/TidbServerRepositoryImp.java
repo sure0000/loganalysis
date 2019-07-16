@@ -8,6 +8,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 
@@ -81,5 +82,23 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
             }
         }
 
+    }
+
+    private SearchHits filterByLocationAndLoglevel(RestHighLevelClient client,
+                                                     String index,
+                                                     String location,
+                                                     String loglevel) throws IOException {
+        SearchRequest request = new SearchRequest(index);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.filter(QueryBuilders.matchQuery("loglevel", loglevel))
+                .filter(QueryBuilders.matchQuery("location", location));
+        searchSourceBuilder.query(boolQueryBuilder);
+        request.source(searchSourceBuilder);
+
+        SearchResponse response = client.search(request);
+        SearchHits searchHits = response.getHits();
+        return searchHits;
     }
 }
