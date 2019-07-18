@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.mail.Address;
 
 /**
- * @Description
+ * @Description 邮件服务
  * @Author: xuyouchang
  * @Date 2019/7/11 下午2:18
  **/

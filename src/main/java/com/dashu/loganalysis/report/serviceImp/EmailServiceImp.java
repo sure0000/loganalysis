@@ -17,7 +17,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
- * @Description
+ * @Description EmailService 实现类
  * @Author: xuyouchang
  * @Date 2019/7/11 下午2:18
  **/
@@ -32,6 +32,7 @@ public class EmailServiceImp implements EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Override
+    @SuppressWarnings(value = "unchecked")
     public void sendEmail(Map emailConf, String subject, String content, String emailType) {
         String from = emailConf.get("from").toString();
         List<String> toList = (List<String>) emailConf.get("to");
@@ -60,7 +61,6 @@ public class EmailServiceImp implements EmailService {
         properties.put(MAIL_SMTP_SSL_ENABLE, "true");
         properties.put(MAIL_SMTP_SSL_SOCKET_FACTORY, sf);
 
-        // 获取默认session对象
         Session session = Session.getDefaultInstance(properties);
         try {
             MimeMessage message = new MimeMessage(session);

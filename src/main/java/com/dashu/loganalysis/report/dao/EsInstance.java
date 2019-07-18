@@ -31,6 +31,7 @@ public enum EsInstance {
      * ES 连接
      * @return connect
      */
+    @SuppressWarnings(value = "unchecked")
     public RestHighLevelClient connect() {
         ReadConf readConf = new ReadConf("conf/es.yml");
         Map<String,Map> esConf = readConf.readYml();
@@ -41,13 +42,12 @@ public enum EsInstance {
         Integer port = Integer.valueOf(connect.get("port").toString());
         String scheme = connect.get("scheme").toString();
 
+        logger.debug("ES configure is {}", esConf);
 
-        //lowLevelClient用户授权访问
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(username, password));
-        //建立连接
-        RestHighLevelClient client=new RestHighLevelClient(RestClient.builder(new HttpHost(host, port,scheme))
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(host, port,scheme))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
@@ -56,11 +56,9 @@ public enum EsInstance {
                 }).setRequestConfigCallback(new RestClientBuilder.RequestConfigCallback(){
                     @Override
                     public RequestConfig.Builder customizeRequestConfig(RequestConfig.Builder requestConfigBuilder) {
-                        //设置超时时间
                         return requestConfigBuilder.setConnectTimeout(500000)
                                 .setSocketTimeout(600000);
                     }
                 }).setMaxRetryTimeoutMillis(600000));
-        return client;
     }
 }

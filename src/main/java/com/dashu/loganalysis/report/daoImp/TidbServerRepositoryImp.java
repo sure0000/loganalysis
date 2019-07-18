@@ -29,23 +29,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description
+ * @Description TidbServerRepository 实现类
  * @Author: xuyouchang
  * @Date 2019/7/10 上午11:13
  **/
 @Repository
 public class TidbServerRepositoryImp implements TidbServerRepository {
+
     private static final Logger logger = LoggerFactory.getLogger(TidbServerRepositoryImp.class);
 
     @Override
-    public List<Map<String,Object>> countAndFilterByLoglevel(String index, String loglevel) {
+    @SuppressWarnings(value = "unchecked")
+    public List<Map<String, Object>> countAndFilterByLoglevel(String index, String loglevel) {
         RestHighLevelClient client = EsInstance.INSTANCE.connect();
         SearchRequest request = new SearchRequest(index);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // boolQueryBuilder
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.filter(QueryBuilders.matchQuery("loglevel",loglevel));
+        boolQueryBuilder.filter(QueryBuilders.matchQuery("loglevel", loglevel));
         searchSourceBuilder.query(boolQueryBuilder);
 
         // termsAggregationBuilder
@@ -53,6 +55,7 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
                 .field("action");
         termsAggregationBuilder.subAggregation(AggregationBuilders.count("count_action").field("action"));
         termsAggregationBuilder.order(BucketOrder.count(false));
+        termsAggregationBuilder.size(100);
         searchSourceBuilder.aggregation(termsAggregationBuilder);
 
         request.source(searchSourceBuilder);
@@ -60,8 +63,8 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
             SearchResponse response = client.search(request);
             Aggregations aggregations = response.getAggregations();
             Terms byActionAggregation = aggregations.get("by_action");
-            List<Terms.Bucket> buckets = (List<Terms.Bucket>)byActionAggregation.getBuckets();
-            List<Map<String,Object>> warnCountList = new ArrayList<>();
+            List<Terms.Bucket> buckets = (List<Terms.Bucket>) byActionAggregation.getBuckets();
+            List<Map<String, Object>> warnCountList = new ArrayList<>();
             for (Terms.Bucket bucket : buckets) {
                 String key = bucket.getKeyAsString();
                 ValueCount value = bucket.getAggregations().get("count_action");
@@ -72,9 +75,9 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
             }
             return warnCountList;
         } catch (IOException e) {
-            logger.error("warn Count fail {}",e);
+            logger.error("warn Count fail {}", e);
             return null;
-        }finally {
+        } finally {
             try {
                 client.close();
             } catch (IOException e) {
@@ -84,10 +87,11 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
 
     }
 
+    @SuppressWarnings(value = "unused")
     private SearchHits filterByLocationAndLoglevel(RestHighLevelClient client,
-                                                     String index,
-                                                     String action,
-                                                     String loglevel) throws IOException {
+                                                   String index,
+                                                   String action,
+                                                   String loglevel) throws IOException {
         SearchRequest request = new SearchRequest(index);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
@@ -98,7 +102,6 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
         request.source(searchSourceBuilder);
 
         SearchResponse response = client.search(request);
-        SearchHits searchHits = response.getHits();
-        return searchHits;
+        return response.getHits();
     }
 }

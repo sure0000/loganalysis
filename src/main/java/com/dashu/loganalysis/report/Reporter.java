@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.naming.ConfigurationException;
 import java.util.Map;
 
 /**
@@ -20,22 +21,48 @@ import java.util.Map;
 @Component
 public class Reporter {
     private static final Logger logger = LoggerFactory.getLogger(Reporter.class);
+
+    private static final String CONF_NAME_TIDB_SERVER = "tidbServer";
+    private static final String CONF_NAME_TIDB_SLOW_QUERY = "tidbSlowQuery";
+
     @Resource
     private TidbReportService tidbReportService;
     @Resource
     private TidbSlowQueryService tidbSlowQueryService;
 
-//    @Scheduled(cron = "30 9 * * 4 *")
-    public void tidbServerWeekReport() {
-        ReadConf readConf = new ReadConf("conf/email.yml");
-        Map<String,Object> conf = readConf.readYml();
-        tidbReportService.tidbServerWeekReport((Map) conf.get("tidbServer"));
+    /**
+     * 周报：每周五 9：30 发送
+     */
+//    @Scheduled(cron = "30 9 * * 5 *")
+    public void weekReport() {
+        logger.info("send week report");
+        tidbReportService.tidbServerWeekReport(getEmailConf(CONF_NAME_TIDB_SERVER));
+        tidbSlowQueryService.tidbSlowQueryWeekReport(getEmailConf(CONF_NAME_TIDB_SLOW_QUERY));
     }
 
-    public void tidbSlowQueryWeekReport() {
+//    @Scheduled(cron = "0 19 * * * *")
+    public void dayReport() {
+        logger.info("send day report");
+        tidbSlowQueryService.tidbSlowQueryDayReport(getEmailConf(CONF_NAME_TIDB_SLOW_QUERY));
+    }
+
+
+    /**
+     * 获取对应邮件配置
+     * @param confName 具体服务配置名
+     * @return map 格式的配置
+     */
+    @SuppressWarnings(value = "unckecked")
+    private Map<String, Object> getEmailConf(String confName) {
         ReadConf readConf = new ReadConf("conf/email.yml");
         Map<String, Object> conf = readConf.readYml();
-        logger.debug("email config {}", conf);
-        tidbSlowQueryService.tidbSlowQueryWeekReport((Map) conf.get("tidbSlowQuery"));
+        try {
+            Map<String, Object> emailConf = (Map<String, Object>) conf.get(confName);
+            return emailConf;
+        } catch (Exception e) {
+            logger.error("{} email 配置出错，请重新配置 {}", confName, e);
+            return null;
+        }
+
     }
 }

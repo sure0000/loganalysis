@@ -17,12 +17,12 @@ public class ReporterTest extends LoganalysisApplicationTests {
     private Reporter reporter;
 
     @Test
-    public void tidbServerWeekReport() {
-        reporter.tidbServerWeekReport();
+    public void weekReport() {
+        reporter.weekReport();
     }
 
     @Test
-    public void tidbSlowQueryWeekReport() {
-        reporter.tidbSlowQueryWeekReport();
+    public void dayReport() {
+        reporter.dayReport();
     }
 }

@@ -8,7 +8,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,11 +16,15 @@ import java.util.Map;
  * @Date 2019/7/11 下午2:31
  **/
 public class ReadConf {
-    private String filePath = "classpath:TEMPLATE";
+    /**
+     * YML 文件路径
+     */
+    private String filePath;
+
     private static final Logger logger = LoggerFactory.getLogger(ReadConf.class);
 
     public ReadConf(String filePath) {
-        this.filePath = this.filePath.replace("TEMPLATE", filePath);
+        this.filePath = "classpath:" + filePath;
     }
 
     /**
@@ -30,17 +33,14 @@ public class ReadConf {
      */
     public Map readYml() {
         Yaml yaml = new Yaml();
-        File f;
-        Object result;
         try {
-            f = ResourceUtils.getFile(this.filePath);
-            result = yaml.load(new FileInputStream(f));
+            File f = ResourceUtils.getFile(this.filePath);
+            return yaml.load(new FileInputStream(f));
         } catch (FileNotFoundException e) {
             logger.error("{} 不存在 {}", this.filePath, e);
             return null;
         }
-        Map resultAsListMap= (Map) result;
-        return resultAsListMap;
+
     }
 
 }
