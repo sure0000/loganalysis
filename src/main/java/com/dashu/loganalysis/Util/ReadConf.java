@@ -2,12 +2,13 @@ package com.dashu.loganalysis.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.Map;
 
 /**
@@ -22,6 +23,7 @@ public class ReadConf {
     private String filePath;
 
     private static final Logger logger = LoggerFactory.getLogger(ReadConf.class);
+    private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
     public ReadConf(String filePath) {
         this.filePath = "classpath:" + filePath;
@@ -33,11 +35,14 @@ public class ReadConf {
      */
     public Map readYml() {
         Yaml yaml = new Yaml();
+        Resource resource = resourceLoader.getResource(this.filePath);
         try {
-            File f = ResourceUtils.getFile(this.filePath);
-            return yaml.load(new FileInputStream(f));
-        } catch (FileNotFoundException e) {
-            logger.error("{} 不存在 {}", this.filePath, e);
+            // springboot jar内部读取需要用到文件流 不能使用 File
+            InputStream inputStream = resource.getInputStream();
+//            File f = ResourceUtils.getFile(this.filePath);
+            return yaml.load(inputStream);
+        } catch (IOException e) {
+            logger.error("{} 读取异常 {}", this.filePath, e);
             return null;
         }
 

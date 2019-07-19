@@ -33,14 +33,17 @@ public class Reporter {
     /**
      * 周报：每周五 9：30 发送
      */
-//    @Scheduled(cron = "30 9 * * 5 *")
+    @Scheduled(cron = "0 30 9 ? * 6")
     public void weekReport() {
         logger.info("send week report");
         tidbReportService.tidbServerWeekReport(getEmailConf(CONF_NAME_TIDB_SERVER));
         tidbSlowQueryService.tidbSlowQueryWeekReport(getEmailConf(CONF_NAME_TIDB_SLOW_QUERY));
     }
 
-//    @Scheduled(cron = "0 19 * * * *")
+    /**
+     * 日报：每天 9：30 发送
+     */
+    @Scheduled(cron = "0 30 9 * * ?")
     public void dayReport() {
         logger.info("send day report");
         tidbSlowQueryService.tidbSlowQueryDayReport(getEmailConf(CONF_NAME_TIDB_SLOW_QUERY));

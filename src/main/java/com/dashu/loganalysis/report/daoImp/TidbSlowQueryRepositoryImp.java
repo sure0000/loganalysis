@@ -65,7 +65,7 @@ public class TidbSlowQueryRepositoryImp implements TidbSlowQueryRepository {
                 userQueryTime.put("key", bucket.getKey());
                 userQueryTime.put("value", sumQueryTime.value());
                 userQueryTime.put("doc_count", bucket.getDocCount());
-                userQueryTime.put("avg", (float) avgQueryTime.value());
+                userQueryTime.put("avg", (int) avgQueryTime.value());
                 userQueryTimeList.add(userQueryTime);
             }
             return userQueryTimeList;
