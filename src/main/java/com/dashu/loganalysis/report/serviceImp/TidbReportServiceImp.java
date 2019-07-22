@@ -3,6 +3,8 @@ package com.dashu.loganalysis.report.serviceImp;
 import com.dashu.loganalysis.report.dao.TidbServerRepository;
 import com.dashu.loganalysis.report.service.EmailService;
 import com.dashu.loganalysis.report.service.TidbReportService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +22,7 @@ public class TidbReportServiceImp implements TidbReportService {
     private static final String LOG_TIDB_SERVER = "log_tidb_server*";
     private static final String EMAIL_TYPE_HTML = "html";
     private static final String SUBJECT_WEEK_REPORT = "Tidb Server 日志周报";
+    private static final Logger logger = LoggerFactory.getLogger(TidbReportServiceImp.class);
 
     @Resource
     private EmailService emailService;
@@ -29,6 +32,7 @@ public class TidbReportServiceImp implements TidbReportService {
     @Override
     public void tidbServerWeekReport(Map emailConf) {
 
+        logger.info("开始 tidbServerWeekReport");
         List<Map<String, Object>> warnList = tidbServerRepository.countAndFilterByLoglevel(LOG_TIDB_SERVER, "WARN");
         List<Map<String, Object>> errorList = tidbServerRepository.countAndFilterByLoglevel(LOG_TIDB_SERVER, "ERROR");
         String warnContent = constructEmailContent("WARN 类型日志统计", warnList);
@@ -36,6 +40,7 @@ public class TidbReportServiceImp implements TidbReportService {
         String emailContent = warnContent + errorContent;
 
         emailService.sendEmail(emailConf, SUBJECT_WEEK_REPORT, emailContent, EMAIL_TYPE_HTML);
+        logger.info("结束 tidbServerWeekReport");
     }
 
     // 构造邮件格式

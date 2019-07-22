@@ -2,6 +2,6 @@
 connect:
     username: elastic
     password: elastic
-    host: es.99gfd.com
-    port: 443
-    scheme: https
+    host: es1
+    port: 9200
+    scheme: http

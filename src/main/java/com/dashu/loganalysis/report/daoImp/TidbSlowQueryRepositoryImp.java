@@ -10,6 +10,7 @@ import com.dashu.loganalysis.report.dao.EsInstance;
 import com.dashu.loganalysis.report.dao.TidbSlowQueryRepository;
 
 import org.elasticsearch.action.search.*;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
@@ -84,6 +85,7 @@ public class TidbSlowQueryRepositoryImp implements TidbSlowQueryRepository {
     @Override
     public List<SearchHit[]> getQueryTimeLargeThan5s(String index) {
         RestHighLevelClient client = EsInstance.INSTANCE.connect();
+        logger.info("获取 connect client {}", client);
         final Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
         SearchRequest request = new SearchRequest(index);
         request.scroll(scroll);
@@ -97,7 +99,9 @@ public class TidbSlowQueryRepositoryImp implements TidbSlowQueryRepository {
 
         request.source(searchSourceBuilder);
         try {
+            logger.info("获取 response");
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+            logger.info("response 实例 {}", response);
             String scrollId = response.getScrollId();
             SearchHit[] searchHits = response.getHits().getHits();
             List<SearchHit[]> batchHits = new ArrayList<>();

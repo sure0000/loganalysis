@@ -9,11 +9,17 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +39,7 @@ public enum EsInstance {
      */
     @SuppressWarnings(value = "unchecked")
     public RestHighLevelClient connect() {
+        logger.info("开始 connect");
         ReadConf readConf = new ReadConf("conf/es.yml");
         Map<String,Map> esConf = readConf.readYml();
         Map connect = esConf.get("connect");
@@ -47,11 +54,18 @@ public enum EsInstance {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
+
         return new RestHighLevelClient(RestClient.builder(new HttpHost(host, port,scheme))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                        try {
+                            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (chain, authType) -> true).build());
+                        } catch (Exception e) {
+                            logger.error("SSL 设置出错 {}", e);
+                            return null;
+                        }
                     }
                 }).setRequestConfigCallback(new RestClientBuilder.RequestConfigCallback(){
                     @Override

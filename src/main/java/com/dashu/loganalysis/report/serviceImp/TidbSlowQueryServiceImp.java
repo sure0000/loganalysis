@@ -37,13 +37,16 @@ public class TidbSlowQueryServiceImp implements TidbSlowQueryService {
 
     @Override
     public void tidbSlowQueryWeekReport(Map emailConf) {
+        logger.info("开始 tidbSlowQueryWeekReport");
         List<Map<String, Object>> userQueryTimeList = tidbSlowQueryRepository.sumQueryTimeByUser(INDEX_OF_TIDB_SLOW_QUERY);
         String emailContent = constructWeekReportEmail(userQueryTimeList);
         emailService.sendEmail(emailConf, SUBJECT_OF_WEEK_REPORT, emailContent, EMAIL_TYPE_HTML);
+        logger.info("结束 tidbSlowQueryWeekReport");
     }
 
     @Override
     public void tidbSlowQueryDayReport(Map emailConf) {
+        logger.info("开始 tidbSlowQueryDayReport");
         List<SearchHit[]> searchHitArrayList = tidbSlowQueryRepository.getQueryTimeLargeThan5s(INDEX_OF_TIDB_SLOW_QUERY);
         if (searchHitArrayList != null || searchHitArrayList.size() != 0) {
             List<Map> hitList = new ArrayList<>();
@@ -55,6 +58,7 @@ public class TidbSlowQueryServiceImp implements TidbSlowQueryService {
             String emailContent = constructDayReportEmail(hitList);
             emailService.sendEmail(emailConf, SUBJECT_OF_DAY_REPORT, emailContent, EMAIL_TYPE_HTML);
         }
+        logger.info("结束 tidbSlowQueryDayReport");
     }
 
     // 构造周报邮件格式
