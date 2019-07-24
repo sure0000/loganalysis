@@ -12,3 +12,11 @@ tidbSlowQuery:
 #    to: [xuyouchang@treefinance.com.cn]
     host: smtp.exmail.qq.com
     password: Dashu0701
+
+
+zipkin:
+    from: bigdata@treefintech.com
+#    to: [sjyf@treefinance.com.cn]
+    to: [xuyouchang@treefinance.com.cn]
+    host: smtp.exmail.qq.com
+    password: Dashu0701

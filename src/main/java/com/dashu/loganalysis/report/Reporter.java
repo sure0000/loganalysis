@@ -4,6 +4,7 @@ import com.dashu.loganalysis.Util.ReadConf;
 import com.dashu.loganalysis.report.service.TidbReportService;
 import com.dashu.loganalysis.report.service.TidbSlowQueryService;
 
+import com.dashu.loganalysis.report.service.ZipkinReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,11 +25,14 @@ public class Reporter {
 
     private static final String CONF_NAME_TIDB_SERVER = "tidbServer";
     private static final String CONF_NAME_TIDB_SLOW_QUERY = "tidbSlowQuery";
+    private static final String CONF_NAME_ZIPKIN = "zipkin";
 
     @Resource
     private TidbReportService tidbReportService;
     @Resource
     private TidbSlowQueryService tidbSlowQueryService;
+    @Resource
+    private ZipkinReportService zipkinReportService;
 
     /**
      * 周报：每周五 9：30 发送
@@ -38,6 +42,7 @@ public class Reporter {
         logger.info("发送 9：30 周报");
         tidbReportService.tidbServerWeekReport(getEmailConf(CONF_NAME_TIDB_SERVER));
         tidbSlowQueryService.tidbSlowQueryWeekReport(getEmailConf(CONF_NAME_TIDB_SLOW_QUERY));
+        zipkinReportService.zipkinWeekReport(getEmailConf(CONF_NAME_ZIPKIN));
     }
 
     /**

@@ -5,6 +5,7 @@ import com.dashu.loganalysis.report.dao.EsInstance;
 import com.dashu.loganalysis.report.dao.TidbServerRepository;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -60,7 +61,7 @@ public class TidbServerRepositoryImp implements TidbServerRepository {
 
         request.source(searchSourceBuilder);
         try {
-            SearchResponse response = client.search(request);
+            SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             Aggregations aggregations = response.getAggregations();
             Terms byActionAggregation = aggregations.get("by_action");
             List<Terms.Bucket> buckets = (List<Terms.Bucket>) byActionAggregation.getBuckets();
